@@ -1,2 +1,3 @@
-config.json
+src/config/
 node_modules
+.env
