@@ -1,51 +1,47 @@
-// events/messageReactionAdd.js
-const { Events } = require("discord.js");
-const translateText = require("../utils/translate");
+const { languages } = require("../data/languages.json");
+const { translateText } = require("../utils/translate");
 
-module.exports = {
-  name: Events.MessageReactionAdd,
-  async execute(client, reaction, user) {
-    console.log(`Reaction added: ${reaction.emoji.name} by ${user.tag}`);
+async function handleMessageReactionAdd(reaction, user) {
+  console.log(`Reaction added: ${reaction.emoji.name} by ${user.tag}`);
 
-    // Fetch reaction if it's partial
-    if (reaction.partial) {
-      try {
-        await reaction.fetch();
-        console.log("Reaction fetched successfully");
-      } catch (error) {
-        console.error("Error fetching the reaction:", error);
-        return;
-      }
+  if (!reaction.message.content) {
+    try {
+      await reaction.fetch();
+    } catch (error) {
+      console.error("Error fetching the reaction:", error);
     }
+  }
 
-    const language = client.config.languages[reaction.emoji.name];
-    if (!language) {
-      console.warn(`No language found for emoji: ${reaction.emoji.name}`);
-      return;
-    }
+  const language = languages[reaction.emoji.name];
+  if (!language) {
+    console.warn(`No language found for emoji: ${reaction.emoji.name}`);
+    return;
+  }
 
-    const messageContent = reaction.message.content;
-    if (typeof messageContent !== "string" || messageContent.trim() === "") {
-      console.warn(
-        "Message content is empty or not a string, skipping translation."
-      );
-      return;
-    }
+  const reactionMessage = reaction.message.content || reaction.message;
+  if (typeof reactionMessage !== "string" || reactionMessage.trim() === "") {
+    console.warn(
+      "Message content is empty or not a string, skipping translation."
+    );
+    return;
+  }
 
-    console.log(`Message to translate: "${messageContent}"`);
+  try {
+    const translation = await translateText(
+      reaction.client.translate,
+      reactionMessage,
+      language["code"]
+    );
+    const formattedMessage = `**Translation to ${reaction.emoji.name}  •  Requested by:** ${user.tag}\n${translation}`;
 
     try {
-      const translation = await translateText(
-        client.utils.translate,
-        messageContent,
-        language.code
-      );
-      const formattedMessage = `**Translation to ${reaction.emoji.name} • Requested by:** ${user.tag}\n${translation}`;
-
       await reaction.message.reply(formattedMessage);
-      console.log("Reply sent successfully");
-    } catch (error) {
-      console.error("Error during translation or reply:", error);
+    } catch (replyError) {
+      console.error("Error sending reply:", replyError);
     }
-  },
-};
+  } catch (apiError) {
+    console.error("API error during translation:", apiError);
+  }
+}
+
+module.exports = { handleMessageReactionAdd };
