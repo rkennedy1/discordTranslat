@@ -2,6 +2,7 @@ const { Client, Events, GatewayIntentBits, Partials } = require("discord.js");
 const { handleReady } = require("./events/ready");
 const { handleMessageReactionAdd } = require("./events/messageReactionAdd");
 const { handleRateLimit } = require("./events/rateLimit");
+const logger = require("./utils/logger");
 
 function setupClient() {
   const client = new Client({
@@ -18,6 +19,8 @@ function setupClient() {
   );
   client.on(Events.MessageReactionAdd, handleMessageReactionAdd);
   client.on("rateLimit", handleRateLimit);
+
+  logger.info("Client setup complete");
 
   return client;
 }

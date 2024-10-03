@@ -1,5 +1,7 @@
+const logger = require("../utils/logger");
+
 function handleRateLimit(info) {
-  console.warn(`Rate limit hit: ${JSON.stringify(info)}`);
+  logger.warn(`Rate limit hit: ${JSON.stringify(info)}`);
 }
 
 module.exports = { handleRateLimit };

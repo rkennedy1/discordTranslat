@@ -1,4 +1,5 @@
 const { Translate } = require("@google-cloud/translate").v2;
+const logger = require("../utils/logger");
 
 function handleReady(readyClient, client) {
   client.translate = new Translate({
@@ -8,10 +9,10 @@ function handleReady(readyClient, client) {
 
   (async () => {
     const [projectId] = await client.translate.getProjectId();
-    console.log(`Authenticated as project: ${projectId}`);
+    logger.info(`Authenticated as project: ${projectId}`);
   })();
 
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+  logger.info(`Ready! Logged in as ${readyClient.user.tag}`);
 }
 
 module.exports = { handleReady };

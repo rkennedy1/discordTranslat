@@ -1,9 +1,10 @@
-const { Client, GatewayIntentBits, Partials } = require("discord.js");
 const { token } = require("./config/config.json");
 const { setupClient } = require("./client");
+const logger = require("./utils/logger");
 
 require("dotenv").config();
 
-const client = setupClient(); // setup Discord client
+logger.info("Starting the bot...");
+const client = setupClient();
 
 client.login(token);
